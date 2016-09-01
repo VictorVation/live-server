@@ -1,3 +1,13 @@
+This version `1.1.0-victorvation` is a fork replacing `watchr` with `chokidar`, which refreshes in milliseconds instead of 2+ seconds.
+
+To use:
+
+1. Clone this repo
+2. `npm install`
+3. `npm link`
+4. Navigate to your project directory
+5. `live-server`
+
 [![view on npm](http://img.shields.io/npm/v/live-server.svg)](https://www.npmjs.org/package/live-server)
 [![npm module downloads per month](http://img.shields.io/npm/dm/live-server.svg)](https://www.npmjs.org/package/live-server)
 [![build status](https://travis-ci.org/tapio/live-server.svg)](https://travis-ci.org/tapio/live-server)

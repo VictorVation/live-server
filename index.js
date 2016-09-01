@@ -10,7 +10,7 @@ var fs = require('fs'),
 	send = require('send'),
 	open = require('opn'),
 	es = require("event-stream"),
-	watchr = require('watchr');
+	chokidar = require('chokidar');
 require('colors');
 
 var INJECTED_CODE = fs.readFileSync(path.join(__dirname, "injected.html"), "utf8");
@@ -292,40 +292,24 @@ LiveServer.start = function(options) {
 	});
 
 	// Setup file watcher
-	watchr.watch({
-		paths: watchPaths,
-		ignorePaths: options.ignore || false,
-		ignoreCommonPatterns: true,
-		ignoreHiddenFiles: true,
-		ignoreCustomPatterns: options.ignorePattern || null,
-		preferredMethods: [ 'watchFile', 'watch' ],
-		interval: 1407,
-		listeners: {
-			error: function(err) {
-				console.log("ERROR:".red, err);
-			},
-			change: function(eventName, filePath /*, fileCurrentStat, filePreviousStat*/) {
-				clients.forEach(function(ws) {
-					if (!ws) return;
-					if (path.extname(filePath) === ".css") {
-						ws.send('refreshcss');
-						if (LiveServer.logLevel >= 1)
-							console.log("CSS change detected".magenta, filePath);
-					} else {
-						ws.send('reload');
-						if (LiveServer.logLevel >= 1)
-							console.log("File change detected".cyan, filePath);
-					}
-				});
-			}
-		},
-		next: function(err, watchers) {
-			if (err)
-				console.error("Error watching files:".red, err);
-			LiveServer.watchers = watchers;
-		}
-	});
-
+  chokidar.watch(watchPaths, {
+    ignored: /[\/\\]\./
+  }).on('change', function(filePath, fileStats /*, filePreviousStat*/) {
+    clients.forEach(function(ws) {
+      if (!ws) return;
+      if (path.extname(filePath) === ".css") {
+      ws.send('refreshcss');
+      if (LiveServer.logLevel >= 1)
+        console.log("CSS change detected".magenta, filePath);
+      } else {
+      ws.send('reload');
+      if (LiveServer.logLevel >= 1)
+        console.log("File change detected".cyan, filePath);
+      }
+    });
+  }).on('error', function(err) {
+    console.log("ERROR:".red, err);
+  })
 	return server;
 };
 
